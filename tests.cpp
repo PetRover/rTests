@@ -4,7 +4,6 @@
 
 #include "rTests.h"
 #include <thread>
-
 #include <string>
 #include <stdio.h>
 
