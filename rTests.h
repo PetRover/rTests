@@ -12,5 +12,7 @@ namespace RVR
 
     int testGpio(int pinNumber, GpioDirection direction);
 
+    void printCountdown(int seconds);
+
 }
 #endif //RCORE_TESTS_H

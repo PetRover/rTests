@@ -6,25 +6,29 @@
 #include <thread>
 #include <string>
 #include <stdio.h>
+#include <unistd.h>
 
 #define RUNTEST_TEST_GPIO
-
+const int DELAY_SECONDS = 3;
 namespace RVR
 {
     int testGpio(int pinNumber, RVR::GpioDirection direction)
     {
         switch (direction)
         {
+
             case RVR::GpioDirection::OUT:
             {
+                printf("\n======================\nStarting GPIO ouput test\n======================\n\n");
                 RVR::GpioPin pin = RVR::GpioPin(pinNumber, direction);
-                printf("Setting GPIO pin %d high... You have 10 seconds to read with a DMM", pinNumber);
+                printf("Setting GPIO pin %d high... You have %d seconds to read with a DMM\n", pinNumber,
+                       DELAY_SECONDS);
                 pin.setValue(RVR::GpioValue::HIGH);
-                std::this_thread::sleep_for(std::chrono::seconds(10));
-                printf("Setting GPIO pin %d low... You have 10 seconds to read with a DMM", pinNumber);
+                printCountdown(DELAY_SECONDS);
+                printf("Setting GPIO pin %d low... You have %d seconds to read with a DMM\n", pinNumber, DELAY_SECONDS);
                 pin.setValue(RVR::GpioValue::LOW);
-                std::this_thread::sleep_for(std::chrono::seconds(10));
-                printf("Gpio Test complete on pin %d", pinNumber);
+                printCountdown(DELAY_SECONDS);
+                printf("\n======================\nGPIO Output test complete\n======================\n\n");
                 return 0;
             }
             case RVR::GpioDirection::IN:
@@ -39,6 +43,16 @@ namespace RVR
             }
         }
 
+    }
+
+    void printCountdown(int seconds)
+    {
+        printf("| %d |...\n", (seconds));
+        usleep(1000000);
+        if (seconds > 0)
+        {
+            printCountdown(seconds - 1);
+        }
 
     }
 }
