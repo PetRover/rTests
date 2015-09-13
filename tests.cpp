@@ -3,12 +3,11 @@
 //
 
 #include "rTests.h"
-#include <thread>
-#include <string>
-#include <stdio.h>
+#include "rMotors.h"
 #include <unistd.h>
 
-#define RUNTEST_TEST_GPIO
+//#define RUNTEST_TEST_GPIO
+#define RUNTEST_TEST_DC_MOTOR
 const int DELAY_SECONDS = 3;
 namespace RVR
 {
@@ -45,6 +44,32 @@ namespace RVR
 
     }
 
+    int testDcMotor(RVR::MotorName motorName)
+    {
+        if (motorName == RVR::MotorName::CAMERA_MOTOR)
+        {
+            printf("FAILURE: The camera motor is not a DC motor");
+            return 1;
+        }
+        RVR::DcMotor motor = RVR::DcMotor(motorName);
+        motor.setRampTime(100);
+
+        printf("Running motor forward for %d seconds\n", DELAY_SECONDS);
+        motor.startMotor(50, RVR::MotorDirection::FORWARD);
+        printCountdown(DELAY_SECONDS);
+
+        printf("Stopping motor for %d seconds\n", DELAY_SECONDS);
+        motor.stopMotor();
+        printCountdown(DELAY_SECONDS);
+
+        printf("Running motor backwards for %d seconds\n", DELAY_SECONDS);
+        motor.startMotor(50, RVR::MotorDirection::REVERSE);
+        printCountdown(DELAY_SECONDS);
+
+        return 0;
+
+    }
+
     void printCountdown(int seconds)
     {
         printf("| %d |...\n", (seconds));
@@ -61,7 +86,10 @@ int main(void)
 {
 #ifdef RUNTEST_TEST_GPIO
     RVR::testGpio(10, RVR::GpioDirection::OUT);
-//    RVR::testGpio(10, RVR::GpioDirection::OUT);
+#endif
+
+#ifdef RUNTEST_TEST_DC_MOTOR
+    RVR::testDcMotor(RVR::MotorName::DRIVE_MOTOR_1);
 #endif
     return 0;
 }
