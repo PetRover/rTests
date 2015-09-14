@@ -89,7 +89,7 @@ int main(void)
 #endif
 
 #ifdef RUNTEST_TEST_DC_MOTOR
-    RVR::testDcMotor(RVR::MotorName::DRIVE_MOTOR_1);
+    RVR::testDcMotor(RVR::MotorName::DRIVE_MOTOR_A);
 #endif
     return 0;
 }
