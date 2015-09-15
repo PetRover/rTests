@@ -11,15 +11,16 @@
 const int DELAY_SECONDS = 3;
 namespace RVR
 {
-    int testGpio(int pinNumber, RVR::GpioDirection direction)
+    int testGpio(int pinNumber)
     {
-        switch (direction)
+        RVR::GpioPin pin = RVR::GpioPin(pinNumber);
+        switch (pin.getDirection())
         {
 
             case RVR::GpioDirection::OUT:
             {
                 printf("\n======================\nStarting GPIO ouput test\n======================\n\n");
-                RVR::GpioPin pin = RVR::GpioPin(pinNumber, direction);
+
                 printf("Setting GPIO pin %d high... You have %d seconds to read with a DMM\n", pinNumber,
                        DELAY_SECONDS);
                 pin.setValue(RVR::GpioValue::HIGH);
@@ -89,7 +90,7 @@ namespace RVR
 int main(void)
 {
 #ifdef RUNTEST_TEST_GPIO
-    RVR::testGpio(10, RVR::GpioDirection::OUT);
+    RVR::testGpio(10);
 #endif
 
 #ifdef RUNTEST_TEST_DC_MOTOR
