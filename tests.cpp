@@ -52,11 +52,12 @@ namespace RVR
             return 1;
         }
         RVR::DcMotor motor = RVR::DcMotor(motorName);
-        motor.setRampTime(100);
+        motor.setRampTime(2000);
 
         printf("Running motor forward for %d seconds\n", DELAY_SECONDS);
         motor.startMotor(50, RVR::MotorDirection::FORWARD);
         printCountdown(DELAY_SECONDS);
+
 
         printf("Stopping motor for %d seconds\n", DELAY_SECONDS);
         motor.stopMotor();
@@ -65,6 +66,9 @@ namespace RVR
         printf("Running motor backwards for %d seconds\n", DELAY_SECONDS);
         motor.startMotor(50, RVR::MotorDirection::REVERSE);
         printCountdown(DELAY_SECONDS);
+
+        printf("Stopping motor\n");
+        motor.stopMotor();
 
         return 0;
 
@@ -89,7 +93,7 @@ int main(void)
 #endif
 
 #ifdef RUNTEST_TEST_DC_MOTOR
-    RVR::testDcMotor(RVR::MotorName::DRIVE_MOTOR_A);
+    RVR::testDcMotor(RVR::MotorName::DRIVE_MOTOR_B);
 #endif
     return 0;
 }
