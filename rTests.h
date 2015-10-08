@@ -11,6 +11,7 @@ namespace RVR
 {
 
     int testGpio(int pinNumber, GpioDirection direction);
+    void testWifi(std::string ipAddress);
 
     void printCountdown(int seconds);
 

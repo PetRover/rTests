@@ -4,10 +4,13 @@
 
 #include "rTests.h"
 #include "rMotors.h"
+#include "rWifi.h"
 #include <unistd.h>
 
 //#define RUNTEST_TEST_GPIO
-#define RUNTEST_TEST_DC_MOTOR
+//#define RUNTEST_TEST_DC_MOTOR
+#define RUNTEST_TEST_WIFI
+
 const int DELAY_SECONDS = 3;
 namespace RVR
 {
@@ -75,6 +78,15 @@ namespace RVR
 
     }
 
+    void testWifi(const char* ipAddress)
+    {
+        NetworkManager ourNetworkManager;
+
+        ourNetworkManager.initializeNewConnection("USBSocket", ipAddress);
+
+        return;
+    }
+
     void printCountdown(int seconds)
     {
         printf("| %d |...\n", (seconds));
@@ -96,5 +108,10 @@ int main(void)
 #ifdef RUNTEST_TEST_DC_MOTOR
     RVR::testDcMotor(RVR::MotorName::DRIVE_MOTOR_B);
 #endif
+
+#ifdef RUNTEST_TEST_WIFI
+    RVR::testWifi("192.168.7.1");
+#endif
+
     return 0;
 }
