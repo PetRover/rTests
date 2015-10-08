@@ -78,13 +78,30 @@ namespace RVR
 
     }
 
+//    void testWifi(const char* ipAddress)
+//    {
+//        NetworkManager ourNetworkManager;
+//
+//        char message[100] = "DATA!!!";
+//        printf("size of message here%d\n", sizeof(message));
+//
+//        ourNetworkManager.initializeNewConnection("USBSocket", ipAddress);
+//        ourNetworkManager.sendData("USBSocket", message);
+//        return;
+//    }
+
     void testWifi(const char* ipAddress)
     {
+        NetworkChunk chunk;
+        char message[100] = "Look...it works!";
+
+        chunk.payload = message;
+        chunk.numberBytes = sizeof(message);
+        chunk.dataTypeIndetifier = 1;
+
         NetworkManager ourNetworkManager;
-
         ourNetworkManager.initializeNewConnection("USBSocket", ipAddress);
-
-        return;
+        ourNetworkManager.sendData("USBSocket", &chunk);
     }
 
     void printCountdown(int seconds)
