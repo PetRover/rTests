@@ -16,8 +16,8 @@ el::Logger *logger = el::Loggers::getLogger("default");
 
 //#define RUNTEST_TEST_GPIO
 //#define RUNTEST_TEST_DC_MOTOR
-#define RUNTEST_TEST_WIFI_SEND
-//#define RUNTEST_TEST_WIFI_RECEIVE
+//#define RUNTEST_TEST_WIFI_SEND
+#define RUNTEST_TEST_WIFI_RECEIVE
 
 const int DELAY_SECONDS = 3;
 namespace RVR
@@ -104,7 +104,12 @@ namespace RVR
         NetworkManager ourNetworkManager;
         ourNetworkManager.initializeNewConnection("USBSocket", ipAddress);
         char receivedMessage[100];
-        ourNetworkManager.receiveData("USBSocket", receivedMessage, 100);
+        int receivedBytes = ourNetworkManager.receiveData("USBSocket", receivedMessage, 100);
+
+        //print out message received
+        for (int i = 0; i < receivedBytes; i++){
+            printf("%c", receivedMessage[i]);
+        }
     }
 
     void printCountdown(int seconds)
