@@ -7,6 +7,13 @@
 #include "rWifi.h"
 #include <unistd.h>
 
+#define ELPP_STL_LOGGING
+
+#include "../rCore/easylogging++.h"
+
+INITIALIZE_EASYLOGGINGPP;
+el::Logger *logger = el::Loggers::getLogger("default");
+
 //#define RUNTEST_TEST_GPIO
 //#define RUNTEST_TEST_DC_MOTOR
 #define RUNTEST_TEST_WIFI_SEND
