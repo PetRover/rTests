@@ -9,7 +9,8 @@
 
 //#define RUNTEST_TEST_GPIO
 //#define RUNTEST_TEST_DC_MOTOR
-#define RUNTEST_TEST_WIFI
+#define RUNTEST_TEST_WIFI_SEND
+//#define RUNTEST_TEST_WIFI_RECEIVE
 
 const int DELAY_SECONDS = 3;
 namespace RVR
@@ -78,19 +79,7 @@ namespace RVR
 
     }
 
-//    void testWifi(const char* ipAddress)
-//    {
-//        NetworkManager ourNetworkManager;
-//
-//        char message[100] = "DATA!!!";
-//        printf("size of message here%d\n", sizeof(message));
-//
-//        ourNetworkManager.initializeNewConnection("USBSocket", ipAddress);
-//        ourNetworkManager.sendData("USBSocket", message);
-//        return;
-//    }
-
-    void testWifi(const char* ipAddress)
+    void testWifiSend(const char* ipAddress)
     {
         NetworkChunk chunk;
         char message[100] = "Look...it works!";
@@ -102,6 +91,13 @@ namespace RVR
         NetworkManager ourNetworkManager;
         ourNetworkManager.initializeNewConnection("USBSocket", ipAddress);
         ourNetworkManager.sendData("USBSocket", &chunk);
+    }
+
+    void testWifiReceive(const char* ipAddress){
+        NetworkManager ourNetworkManager;
+        ourNetworkManager.initializeNewConnection("USBSocket", ipAddress);
+        char receivedMessage[100];
+        ourNetworkManager.receiveData("USBSocket", receivedMessage, 100);
     }
 
     void printCountdown(int seconds)
@@ -126,8 +122,12 @@ int main(void)
     RVR::testDcMotor(RVR::MotorName::DRIVE_MOTOR_B);
 #endif
 
-#ifdef RUNTEST_TEST_WIFI
-    RVR::testWifi("192.168.7.1");
+#ifdef RUNTEST_TEST_WIFI_SEND
+    RVR::testWifiSend("192.168.7.1");
+#endif
+
+#ifdef RUNTEST_TEST_WIFI_RECEIVE
+    RVR::testWifiReceive("192.168.7.1");
 #endif
 
     return 0;
