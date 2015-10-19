@@ -100,15 +100,19 @@ namespace RVR
         ourNetworkManager.sendData("USBSocket", &chunk);
     }
 
-    void testWifiReceive(const char* ipAddress){
+    void testWifiReceive(const char* ipAddress)
+    {
         NetworkManager ourNetworkManager;
         ourNetworkManager.initializeNewConnection("USBSocket", ipAddress);
-        char receivedMessage[100];
-        int receivedBytes = ourNetworkManager.receiveData("USBSocket", receivedMessage, 100);
 
-        //print out message received
-        for (int i = 0; i < receivedBytes; i++){
-            printf("%c", receivedMessage[i]);
+        NetworkChunk chunk;
+        int dataReceived = ourNetworkManager.getData("USBSocket", &chunk);
+
+        //print number of bytesReceived
+        if (dataReceived){
+            printf("length = %d (i.e. was correct number passed back to test.cpp function?)\n", chunk.numberBytes);
+        }else{
+            printf("No bytes received\n");
         }
     }
 
