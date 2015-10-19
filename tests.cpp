@@ -5,55 +5,65 @@
 #include "rTests.h"
 #include "rMotors.h"
 #include "rWifi.h"
-#include <unistd.h>
-
-#define ELPP_STL_LOGGING
+#include "rCamera.h"
 
 #include "../rCore/easylogging++.h"
-
 INITIALIZE_EASYLOGGINGPP;
 el::Logger *logger = el::Loggers::getLogger("default");
 
+// ===========================================
+// TEST ENABLING FLAG SECTION
+// ===========================================
 //#define RUNTEST_TEST_GPIO
 //#define RUNTEST_TEST_DC_MOTOR
 //#define RUNTEST_TEST_WIFI_SEND
-#define RUNTEST_TEST_WIFI_RECEIVE
+//#define RUNTEST_TEST_WIFI_RECEIVE
+//#define RUNTEST_TEST_CAMERA_SAVE_FILE
+// ===========================================
 
-const int DELAY_SECONDS = 3;
+int DELAY_SECONDS = 3;
+
 namespace RVR
 {
     int testGpio(int pinNumber)
     {
-        RVR::GpioPin pin = RVR::GpioPin(pinNumber);
-        switch (pin.getDirection())
+
+
+        VLOG(1) << "Begining GPIO test on pin (" << pinNumber << ")";
+        try
         {
-
-            case RVR::GpioDirection::OUT:
+            RVR::GpioPin pin = RVR::GpioPin(pinNumber);
+            switch (pin.getDirection())
             {
-                printf("\n======================\nStarting GPIO ouput test\n======================\n\n");
-
-                printf("Setting GPIO pin %d high... You have %d seconds to read with a DMM\n", pinNumber,
-                       DELAY_SECONDS);
-                pin.setValue(RVR::GpioValue::HIGH);
-                printCountdown(DELAY_SECONDS);
-                printf("Setting GPIO pin %d low... You have %d seconds to read with a DMM\n", pinNumber, DELAY_SECONDS);
-                pin.setValue(RVR::GpioValue::LOW);
-                printCountdown(DELAY_SECONDS);
-                printf("\n======================\nGPIO Output test complete\n======================\n\n");
-                return 0;
-            }
-            case RVR::GpioDirection::IN:
-            {
-                // TODO Implement this
-                return 0;
-            }
-            case RVR::GpioDirection::ERROR:
-            {
-                printf("Invalid input arguments");
-                return -1;
+                case RVR::GpioDirection::OUT:
+                {
+                    logger->verbose(2,"Setting GPIO pin %v high... You have %v seconds to read with a DMM\n", pinNumber, DELAY_SECONDS);
+                    pin.setValue(RVR::GpioValue::HIGH);
+                    printCountdown(DELAY_SECONDS);
+                    logger->verbose(2,"Setting GPIO pin %v low... You have %v seconds to read with a DMM\n", pinNumber, DELAY_SECONDS);
+                    pin.setValue(RVR::GpioValue::LOW);
+                    printCountdown(DELAY_SECONDS);
+                    break;
+                }
+                case RVR::GpioDirection::IN:
+                {
+                    // TODO Implement this
+                    break;
+                }
+                case RVR::GpioDirection::ERROR:
+                {
+                    LOG(ERROR) << "The pin object has a bad dirrection property";
+                    throw std::runtime_error("The pin object has a bad dirrection property");
+                }
             }
         }
-
+        catch (...)
+        {
+            LOG(ERROR) << "[ FAILURE ] GPIO test of pin (" << pinNumber << ") failed";
+            return -1;
+        }
+        VLOG(1) << "[ SUCCESS ] GPIO test on pin (" << pinNumber << ") passed.";
+        return 0;
     }
 
     int testDcMotor(RVR::MotorName motorName)
@@ -116,9 +126,37 @@ namespace RVR
         }
     }
 
+    int testCameraSaveFile(int secondsToRun)
+    {
+        VLOG(1) << "Begining Camera save file test.";
+        try
+        {
+            Camera camera = Camera();
+            VLOG(2) << "Setting stream at YUYV, 640px by 480px @ 30fps";
+            camera.setupStream(UVC_FRAME_FORMAT_YUYV, 640, 480, 30);
+            VLOG(2) << "Setting callback function to saveFrame()";
+            camera.setFrameCallback(saveFrame);
+
+            camera.setAutoExposure(true);
+
+            camera.startStream();
+            VLOG(1) << "Streaming for " << secondsToRun << " seconds.";
+            printCountdown(secondsToRun);
+            camera.stopStream();
+        }
+        catch (...)
+        {
+            LOG(ERROR) << "[ FAILURE ] Camera write file test failed";
+            return -1;
+        }
+        VLOG(1) << "[ SUCCESS ] Camera write file test passed";
+        return 0;
+
+    }
+
     void printCountdown(int seconds)
     {
-        printf("| %d |...\n", (seconds));
+        logger->verbose(2,"| %v |...\n", seconds);
         usleep(1000000);
         if (seconds > 0)
         {
@@ -128,8 +166,10 @@ namespace RVR
     }
 }
 
-int main(void)
+int main(int argc, char *argv[])
 {
+    START_EASYLOGGINGPP(argc, argv);
+    LOG(INFO) << "Starting the rover tests";
 #ifdef RUNTEST_TEST_GPIO
     RVR::testGpio(10);
 #endif
@@ -144,6 +184,10 @@ int main(void)
 
 #ifdef RUNTEST_TEST_WIFI_RECEIVE
     RVR::testWifiReceive("192.168.7.1");
+#endif
+
+#ifdef RUNTEST_TEST_CAMERA_SAVE_FILE
+    RVR::testCameraSaveFile(3);
 #endif
 
     return 0;

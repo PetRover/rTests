@@ -2,10 +2,16 @@ cmake_minimum_required(VERSION 3.3)
 
 SET(EXECUTABLE_OUTPUT_PATH ../../bin)
 
+FIND_PACKAGE(libuvc REQUIRED)
+
+INCLUDE_DIRECTORIES(SYSTEM ${libuvc_INCLUDE_DIRS})
+
 add_executable(rTests tests.cpp rTests.h)
 
-target_link_libraries(rTests rMotors)
-target_link_libraries(rTests rProtocols)
-target_link_libraries(rTests rSensors)
-target_link_libraries(rTests rWifi)
-target_link_libraries(rTests rPowerSystems)
+TARGET_LINK_LIBRARIES(rTests ${libuvc_LIBRARIES})
+TARGET_LINK_LIBRARIES(rTests rCamera)
+TARGET_LINK_LIBRARIES(rTests rMotors)
+TARGET_LINK_LIBRARIES(rTests rProtocols)
+TARGET_LINK_LIBRARIES(rTests rSensors)
+TARGET_LINK_LIBRARIES(rTests rWifi)
+TARGET_LINK_LIBRARIES(rTests rPowerSystems)
