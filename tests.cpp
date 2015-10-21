@@ -135,7 +135,7 @@ namespace RVR
             VLOG(2) << "Setting stream at YUYV, 640px by 480px @ 30fps";
             camera.setupStream(UVC_FRAME_FORMAT_YUYV, 640, 480, 30);
             VLOG(2) << "Setting callback function to saveFrame()";
-            camera.setFrameCallback(saveFrame);
+            camera.setFrameCallback(sendFrame);
 
             camera.setAutoExposure(true);
 
