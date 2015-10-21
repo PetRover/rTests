@@ -6,6 +6,8 @@
 #include "rMotors.h"
 #include "rWifi.h"
 #include "rCamera.h"
+#include <stdexcept>
+#include <unistd.h>
 
 #include "../rCore/easylogging++.h"
 INITIALIZE_EASYLOGGINGPP;
