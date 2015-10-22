@@ -5,6 +5,8 @@
 #include "rTests.h"
 #include "rMotors.h"
 #include "rWifi.h"
+#include <stdexcept>
+#include <unistd.h>
 #include "rCamera.h"
 
 #include "../rCore/easylogging++.h"
@@ -17,7 +19,7 @@ el::Logger *logger = el::Loggers::getLogger("default");
 //#define RUNTEST_TEST_GPIO
 //#define RUNTEST_TEST_DC_MOTOR
 //#define RUNTEST_TEST_WIFI_SEND
-//#define RUNTEST_TEST_WIFI_RECEIVE
+#define RUNTEST_TEST_WIFI_RECEIVE
 //#define RUNTEST_TEST_CAMERA_SAVE_FILE
 // ===========================================
 
@@ -115,17 +117,19 @@ namespace RVR
         NetworkManager ourNetworkManager;
         ourNetworkManager.initializeNewConnection("USBSocket", ipAddress);
 
-        NetworkChunk chunk;
-        int dataReceived = ourNetworkManager.getData("USBSocket", &chunk);
+        NetworkChunk chunk = ourNetworkManager.getData("USBSocket");
 
-        //print number of bytesReceived
-        if (dataReceived){
-            printf("length = %d (i.e. was correct number passed back to test.cpp function?)\n", chunk.numberBytes);
-        }else{
-            printf("No bytes received\n");
+        //TODO - what happens if no data received
+        VLOG(2) << "Length of data returned to test.cpp: " << chunk.numberBytes;
+
+        if (chunk.dataTypeIndetifier == 6){
+            for (int i=0;i<chunk.numberBytes;i++){
+                VLOG(2) << ((int*)chunk.payload)[i]; //TODO - Make this actually print the data
+            }
         }
     }
 
+//needs to be commented out for Alyssa...
     int testCameraSaveFile(int secondsToRun)
     {
         VLOG(1) << "Begining Camera save file test.";
@@ -153,6 +157,7 @@ namespace RVR
         return 0;
 
     }
+    //commented out until here for Alyssa
 
     void printCountdown(int seconds)
     {
