@@ -8,6 +8,8 @@
 #include <stdexcept>
 #include <unistd.h>
 #include "rCamera.h"
+#include <stdexcept>
+#include <unistd.h>
 
 #include "../rCore/easylogging++.h"
 INITIALIZE_EASYLOGGINGPP;
