@@ -109,24 +109,25 @@ namespace RVR
         chunk->setNumberBytes(sizeof(message));
         chunk->setDataTypeIdentifier(1);
 
-        NetworkManager ourNetworkManager;
-        ourNetworkManager.initializeNewConnection("USBSocket", ipAddress);
-        ourNetworkManager.sendData("USBSocket", chunk);
+        NetworkManager* ourNetworkManager = new NetworkManager;
+        ourNetworkManager->initializeNewConnection("USBSocket", ipAddress);
+        ourNetworkManager->sendData("USBSocket", chunk);
     }
 
     void testWifiReceive(const char* ipAddress)
     {
-        NetworkManager ourNetworkManager;
-        ourNetworkManager.initializeNewConnection("USBSocket", ipAddress);
+        NetworkManager* ourNetworkManager = new NetworkManager;
+        ourNetworkManager->initializeNewConnection("USBSocket", ipAddress);
 
-        NetworkChunk chunk = ourNetworkManager.getData("USBSocket");
+        NetworkChunk* chunk = new NetworkChunk;
+        *chunk = ourNetworkManager->getData("USBSocket");
 
         //TODO - what happens if no data received
-        VLOG(2) << "Length of data returned to test.cpp: " << chunk.getNumberBytes();
+        VLOG(2) << "Length of data returned to test.cpp: " << chunk->getNumberBytes();
 
-        if (chunk.getDataTypeIdentifier() == 6){
-            for (int i=0;i<chunk.getNumberBytes();i++){
-                VLOG(2) << ((int*)chunk.getPayload())[i]; //TODO - Make this actually print the data
+        if (chunk->getDataTypeIdentifier() == 6){
+            for (int i=0;i<chunk->getNumberBytes();i++){
+                VLOG(2) << ((char*)chunk->getPayload())[i]; //TODO - Make this actually print the data
             }
         }
     }
