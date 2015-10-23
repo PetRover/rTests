@@ -126,8 +126,12 @@ namespace RVR
         VLOG(2) << "Length of data returned to test.cpp: " << chunk->getNumberBytes();
 
         if (chunk->getDataTypeIdentifier() == 6){
-            for (int i=0;i<chunk->getNumberBytes();i++){
-                VLOG(2) << ((char*)chunk->getPayload())[i]; //TODO - Make this actually print the data
+            for (int i = 0;i < chunk->getNumberBytes();i++){
+                VLOG(1) << ((char*)chunk->getPayload())[i];
+            }
+        }else if(chunk->getDataTypeIdentifier() == 7){
+            for (int i = 0;i < chunk->getNumberBytes();i++){
+                VLOG(1) << ((int*)chunk->getPayload())[i];
             }
         }
     }
