@@ -136,7 +136,6 @@ namespace RVR
         }
     }
 
-//needs to be commented out for Alyssa...
     int testCameraSaveFile(int secondsToRun)
     {
         VLOG(1) << "Begining Camera save file test.";
@@ -164,7 +163,6 @@ namespace RVR
         return 0;
 
     }
-    //commented out until here for Alyssa
 
     void printCountdown(int seconds)
     {
