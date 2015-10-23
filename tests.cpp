@@ -102,16 +102,16 @@ namespace RVR
 
     void testWifiSend(const char* ipAddress)
     {
-        NetworkChunk chunk;
+        NetworkChunk* chunk = new NetworkChunk;
         char message[100] = "Look...it works!";
 
-        chunk.payload = message;
-        chunk.numberBytes = sizeof(message);
-        chunk.dataTypeIndetifier = 1;
+        chunk->setPayload(message);
+        chunk->setNumberBytes(sizeof(message));
+        chunk->setDataTypeIdentifier(1);
 
         NetworkManager ourNetworkManager;
         ourNetworkManager.initializeNewConnection("USBSocket", ipAddress);
-        ourNetworkManager.sendData("USBSocket", &chunk);
+        ourNetworkManager.sendData("USBSocket", chunk);
     }
 
     void testWifiReceive(const char* ipAddress)
@@ -122,11 +122,11 @@ namespace RVR
         NetworkChunk chunk = ourNetworkManager.getData("USBSocket");
 
         //TODO - what happens if no data received
-        VLOG(2) << "Length of data returned to test.cpp: " << chunk.numberBytes;
+        VLOG(2) << "Length of data returned to test.cpp: " << chunk.getNumberBytes();
 
-        if (chunk.dataTypeIndetifier == 6){
-            for (int i=0;i<chunk.numberBytes;i++){
-                VLOG(2) << ((int*)chunk.payload)[i]; //TODO - Make this actually print the data
+        if (chunk.getDataTypeIdentifier() == 6){
+            for (int i=0;i<chunk.getNumberBytes();i++){
+                VLOG(2) << ((int*)chunk.getPayload())[i]; //TODO - Make this actually print the data
             }
         }
     }
