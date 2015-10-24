@@ -21,7 +21,9 @@ el::Logger *logger = el::Loggers::getLogger("default");
 //#define RUNTEST_TEST_GPIO
 //#define RUNTEST_TEST_DC_MOTOR
 //#define RUNTEST_TEST_WIFI_SEND
-#define RUNTEST_TEST_WIFI_RECEIVE
+//#define RUNTEST_TEST_WIFI_RECEIVE_COMMAND
+//#define RUNTEST_TEST_WIFI_RECEIVE_STATUS
+#define RUNTEST_TEST_WIFI_RECEIVE_TEXT
 //#define RUNTEST_TEST_CAMERA_SAVE_FILE
 // ===========================================
 
@@ -102,19 +104,24 @@ namespace RVR
 
     void testWifiSend(const char* ipAddress)
     {
-        NetworkChunk* chunk = new NetworkChunk;
-        char message[100] = "Look...it works!";
-
-        chunk->setPayload(message);
-        chunk->setNumberBytes(sizeof(message));
-        chunk->setDataTypeIdentifier(1);
-
         NetworkManager* ourNetworkManager = new NetworkManager;
         ourNetworkManager->initializeNewConnection("USBSocket", ipAddress);
-        ourNetworkManager->sendData("USBSocket", chunk);
+
+        //make and fill command with data
+        Command *ourCommand = new Command;
+        ourCommand->setCommandType(CommandType::DRIVE_FORWARD);
+        char message[100] = "Look...it works!";
+        ourCommand->setCommandData(message);
+
+        //turn command into NetworkChunk
+        NetworkChunk* ourNetworkChunk = new NetworkChunk;
+        *ourNetworkChunk = ourCommand->toNetworkChunk();
+
+        //send NetworkChunk
+        ourNetworkManager->sendData("USBSocket", ourNetworkChunk);
     }
 
-    void testWifiReceive(const char* ipAddress)
+    void testWifiReceiveCommand(const char* ipAddress)
     {
         NetworkManager* ourNetworkManager = new NetworkManager;
         ourNetworkManager->initializeNewConnection("USBSocket", ipAddress);
@@ -122,47 +129,91 @@ namespace RVR
         NetworkChunk* chunk = new NetworkChunk;
         *chunk = ourNetworkManager->getData("USBSocket");
 
-        //TODO - what happens if no data received
-        VLOG(2) << "Length of data returned to test.cpp: " << chunk->getNumberBytes();
+        Command ourCommand(*chunk);
 
-        if (chunk->getDataTypeIdentifier() == 6){
-            for (int i = 0;i < chunk->getNumberBytes();i++){
-                VLOG(1) << ((char*)chunk->getPayload())[i];
-            }
-        }else if(chunk->getDataTypeIdentifier() == 7){
-            for (int i = 0;i < chunk->getNumberBytes();i++){
-                VLOG(1) << ((int*)chunk->getPayload())[i];
-            }
+        //print out type/data of ourCommand
+        if (ourCommand.getCommandType() == CommandType::DRIVE_BACKWARD)
+        {
+            VLOG(2) << "Command type was DRIVE_BACKWARD";
+        }
+
+        for (int i=0; i < COMMAND_LENGTH; i++)
+        {
+            VLOG(2) << (ourCommand.getCommandData())[i];
         }
     }
 
-    int testCameraSaveFile(int secondsToRun)
+    void testWifiReceiveStatus(const char* ipAddress)
     {
-        VLOG(1) << "Begining Camera save file test.";
-        try
+        NetworkManager* ourNetworkManager = new NetworkManager;
+        ourNetworkManager->initializeNewConnection("USBSocket", ipAddress);
+
+        NetworkChunk* chunk = new NetworkChunk;
+        *chunk = ourNetworkManager->getData("USBSocket");
+
+        Status ourStatus(*chunk);
+
+        //print out type/data of ourStatus
+        if (ourStatus.getStatusType() == StatusType::CHARGING)
         {
-            Camera camera = Camera();
-            VLOG(2) << "Setting stream at YUYV, 640px by 480px @ 30fps";
-            camera.setupStream(UVC_FRAME_FORMAT_YUYV, 640, 480, 30);
-            VLOG(2) << "Setting callback function to saveFrame()";
-            camera.setFrameCallback(sendFrame);
-
-            camera.setAutoExposure(true);
-
-            camera.startStream();
-            VLOG(1) << "Streaming for " << secondsToRun << " seconds.";
-            printCountdown(secondsToRun);
-            camera.stopStream();
+            VLOG(2) << "Status type was CHARGING";
         }
-        catch (...)
+
+        for (int i=0; i < STATUS_LENGTH; i++)
         {
-            LOG(ERROR) << "[ FAILURE ] Camera write file test failed";
-            return -1;
+            VLOG(2) << (ourStatus.getStatusData())[i];
         }
-        VLOG(1) << "[ SUCCESS ] Camera write file test passed";
-        return 0;
-
     }
+
+    void testWifiReceiveText(const char* ipAddress)
+    {
+        NetworkManager* ourNetworkManager = new NetworkManager;
+        ourNetworkManager->initializeNewConnection("USBSocket", ipAddress);
+
+        NetworkChunk* chunk = new NetworkChunk;
+        *chunk = ourNetworkManager->getData("USBSocket");
+
+        Text ourTextMessage(*chunk);
+
+        //print out length/data of ourTextMessage
+        int length = ourTextMessage.getLength();
+        VLOG(2) << "Length of our Message "<< length;
+
+        for (int i=0; i < length; i++)
+        {
+            VLOG(2) << (ourTextMessage.getTextMessage())[i];
+        }
+    }
+
+////needs to be commented out for Alyssa...
+//    int testCameraSaveFile(int secondsToRun)
+//    {
+//        VLOG(1) << "Begining Camera save file test.";
+//        try
+//        {
+//            Camera camera = Camera();
+//            VLOG(2) << "Setting stream at YUYV, 640px by 480px @ 30fps";
+//            camera.setupStream(UVC_FRAME_FORMAT_YUYV, 640, 480, 30);
+//            VLOG(2) << "Setting callback function to saveFrame()";
+//            camera.setFrameCallback(sendFrame);
+//
+//            camera.setAutoExposure(true);
+//
+//            camera.startStream();
+//            VLOG(1) << "Streaming for " << secondsToRun << " seconds.";
+//            printCountdown(secondsToRun);
+//            camera.stopStream();
+//        }
+//        catch (...)
+//        {
+//            LOG(ERROR) << "[ FAILURE ] Camera write file test failed";
+//            return -1;
+//        }
+//        VLOG(1) << "[ SUCCESS ] Camera write file test passed";
+//        return 0;
+//
+//    }
+//    //commented out until here for Alyssa
 
     void printCountdown(int seconds)
     {
@@ -192,8 +243,16 @@ int main(int argc, char *argv[])
     RVR::testWifiSend("192.168.7.1");
 #endif
 
-#ifdef RUNTEST_TEST_WIFI_RECEIVE
-    RVR::testWifiReceive("192.168.7.1");
+#ifdef RUNTEST_TEST_WIFI_RECEIVE_COMMAND
+    RVR::testWifiReceiveCommand("192.168.1.12");
+#endif
+
+#ifdef RUNTEST_TEST_WIFI_RECEIVE_STATUS
+    RVR::testWifiReceiveStatus("192.168.1.12");
+#endif
+
+#ifdef RUNTEST_TEST_WIFI_RECEIVE_TEXT
+    RVR::testWifiReceiveText("192.168.1.12");
 #endif
 
 #ifdef RUNTEST_TEST_CAMERA_SAVE_FILE
