@@ -7,6 +7,8 @@ IF (NOT CROSS_COMPILE)
     INCLUDE_DIRECTORIES("${libuvc_INCLUDE_DIRS}")
 endif()
 
+INCLUDE_DIRECTORIES(SYSTEM ${libuvc_INCLUDE_DIRS})
+
 add_executable(rTests tests.cpp rTests.h)
 
 IF (NOT CROSS_COMPILE)

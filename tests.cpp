@@ -20,14 +20,17 @@ el::Logger *logger = el::Loggers::getLogger("default");
 // ===========================================
 //#define RUNTEST_TEST_GPIO
 //#define RUNTEST_TEST_DC_MOTOR
-//#define RUNTEST_TEST_WIFI_SEND
+//#define RUNTEST_TEST_WIFI_SEND_COMMAND
+//#define RUNTEST_TEST_WIFI_SEND_STATUS
+#define RUNTEST_TEST_WIFI_SEND_TEXT
 //#define RUNTEST_TEST_WIFI_RECEIVE_COMMAND
 //#define RUNTEST_TEST_WIFI_RECEIVE_STATUS
-#define RUNTEST_TEST_WIFI_RECEIVE_TEXT
+//#define RUNTEST_TEST_WIFI_RECEIVE_TEXT
 //#define RUNTEST_TEST_CAMERA_SAVE_FILE
 // ===========================================
 
 int DELAY_SECONDS = 3;
+const char* serverIP = "192.168.1.12";
 
 namespace RVR
 {
@@ -102,20 +105,58 @@ namespace RVR
 
     }
 
-    void testWifiSend(const char* ipAddress)
+    void testWifiSendCommand(const char* ipAddress)
     {
         NetworkManager* ourNetworkManager = new NetworkManager;
         ourNetworkManager->initializeNewConnection("USBSocket", ipAddress);
 
         //make and fill command with data
         Command *ourCommand = new Command;
-        ourCommand->setCommandType(CommandType::DRIVE_FORWARD);
-        char message[100] = "Look...it works!";
+        ourCommand->setCommandType(CommandType::DRIVE_BACKWARD);
+        char message[100] = "YES!";
         ourCommand->setCommandData(message);
 
         //turn command into NetworkChunk
         NetworkChunk* ourNetworkChunk = new NetworkChunk;
         *ourNetworkChunk = ourCommand->toNetworkChunk();
+
+        //send NetworkChunk
+        ourNetworkManager->sendData("USBSocket", ourNetworkChunk);
+    }
+
+    void testWifiSendStatus(const char* ipAddress)
+    {
+        NetworkManager* ourNetworkManager = new NetworkManager;
+        ourNetworkManager->initializeNewConnection("USBSocket", ipAddress);
+
+        //make and fill status with data
+        Status *ourStatus = new Status;
+        ourStatus->setStatusType(StatusType::NOT_CHARGING);
+        char message[100] = "YES!";
+        ourStatus->setStatusData(message);
+
+        //turn status into NetworkChunk
+        NetworkChunk* ourNetworkChunk = new NetworkChunk;
+        *ourNetworkChunk = ourStatus->toNetworkChunk();
+
+        //send NetworkChunk
+        ourNetworkManager->sendData("USBSocket", ourNetworkChunk);
+    }
+
+    void testWifiSendText(const char* ipAddress)
+    {
+        NetworkManager* ourNetworkManager = new NetworkManager;
+        ourNetworkManager->initializeNewConnection("USBSocket", ipAddress);
+
+        //make and fill text with data
+        Text *ourTextMessage = new Text;
+        ourTextMessage->setLength(10);
+        char message[100] = "YESSSSS!!!";
+        ourTextMessage->setTextMessage(message);
+
+        //turn command into NetworkChunk
+        NetworkChunk* ourNetworkChunk = new NetworkChunk;
+        *ourNetworkChunk = ourTextMessage->toNetworkChunk();
 
         //send NetworkChunk
         ourNetworkManager->sendData("USBSocket", ourNetworkChunk);
@@ -132,9 +173,9 @@ namespace RVR
         Command ourCommand(*chunk);
 
         //print out type/data of ourCommand
-        if (ourCommand.getCommandType() == CommandType::DRIVE_BACKWARD)
+        if (ourCommand.getCommandType() == CommandType::DRIVE_LEFT)
         {
-            VLOG(2) << "Command type was DRIVE_BACKWARD";
+            VLOG(2) << "Command type was DRIVE_LEFT";
         }
 
         for (int i=0; i < COMMAND_LENGTH; i++)
@@ -239,20 +280,28 @@ int main(int argc, char *argv[])
     RVR::testDcMotor(RVR::MotorName::DRIVE_MOTOR_B);
 #endif
 
-#ifdef RUNTEST_TEST_WIFI_SEND
-    RVR::testWifiSend("192.168.7.1");
+#ifdef RUNTEST_TEST_WIFI_SEND_COMMAND
+    RVR::testWifiSendCommand(serverIP);
+#endif
+
+#ifdef RUNTEST_TEST_WIFI_SEND_STATUS
+    RVR::testWifiSendStatus(serverIP);
+#endif
+
+#ifdef RUNTEST_TEST_WIFI_SEND_TEXT
+    RVR::testWifiSendText(serverIP);
 #endif
 
 #ifdef RUNTEST_TEST_WIFI_RECEIVE_COMMAND
-    RVR::testWifiReceiveCommand("192.168.1.12");
+    RVR::testWifiReceiveCommand(serverIP);
 #endif
 
 #ifdef RUNTEST_TEST_WIFI_RECEIVE_STATUS
-    RVR::testWifiReceiveStatus("192.168.1.12");
+    RVR::testWifiReceiveStatus(serverIP);
 #endif
 
 #ifdef RUNTEST_TEST_WIFI_RECEIVE_TEXT
-    RVR::testWifiReceiveText("192.168.1.12");
+    RVR::testWifiReceiveText(serverIP);
 #endif
 
 #ifdef RUNTEST_TEST_CAMERA_SAVE_FILE
