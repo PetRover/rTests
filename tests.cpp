@@ -5,6 +5,7 @@
 #include "rTests.h"
 #include "rMotors.h"
 #include "rWifi.h"
+#include "rPower.h"
 #include <stdexcept>
 #include <unistd.h>
 #include "rCamera.h"
@@ -22,7 +23,9 @@ el::Logger *logger = el::Loggers::getLogger("default");
 //#define RUNTEST_TEST_DC_MOTOR
 //#define RUNTEST_TEST_WIFI_SEND_COMMAND
 //#define RUNTEST_TEST_WIFI_SEND_STATUS
-#define RUNTEST_TEST_WIFI_SEND_TEXT
+//#define RUNTEST_TEST_WIFI_SEND_TEXT
+#define RUNTEST_TEST_DC_MOTOR
+//#define RUNTEST_TEST_WIFI_SEND
 //#define RUNTEST_TEST_WIFI_RECEIVE_COMMAND
 //#define RUNTEST_TEST_WIFI_RECEIVE_STATUS
 //#define RUNTEST_TEST_WIFI_RECEIVE_TEXT
@@ -41,25 +44,25 @@ namespace RVR
         VLOG(1) << "Begining GPIO test on pin (" << pinNumber << ")";
         try
         {
-            RVR::GpioPin pin = RVR::GpioPin(pinNumber);
+            GpioPin pin = GpioPin(pinNumber);
             switch (pin.getDirection())
             {
-                case RVR::GpioDirection::OUT:
+                case GpioDirection::OUT:
                 {
                     logger->verbose(2,"Setting GPIO pin %v high... You have %v seconds to read with a DMM\n", pinNumber, DELAY_SECONDS);
-                    pin.setValue(RVR::GpioValue::HIGH);
+                    pin.setValue(GpioValue::HIGH);
                     printCountdown(DELAY_SECONDS);
                     logger->verbose(2,"Setting GPIO pin %v low... You have %v seconds to read with a DMM\n", pinNumber, DELAY_SECONDS);
-                    pin.setValue(RVR::GpioValue::LOW);
+                    pin.setValue(GpioValue::LOW);
                     printCountdown(DELAY_SECONDS);
                     break;
                 }
-                case RVR::GpioDirection::IN:
+                case GpioDirection::IN:
                 {
                     // TODO Implement this
                     break;
                 }
-                case RVR::GpioDirection::ERROR:
+                case GpioDirection::ERROR:
                 {
                     LOG(ERROR) << "The pin object has a bad dirrection property";
                     throw std::runtime_error("The pin object has a bad dirrection property");
@@ -75,18 +78,12 @@ namespace RVR
         return 0;
     }
 
-    int testDcMotor(RVR::MotorName motorName)
+    int testDcMotor(DRV8842Motor motor)
     {
-        if (motorName == RVR::MotorName::CAMERA_MOTOR)
-        {
-            printf("FAILURE: The camera motor is not a DC motor");
-            return 1;
-        }
-        RVR::DcMotor motor = RVR::DcMotor(motorName);
         motor.setRampTime(2000);
 
         printf("Running motor forward for %d seconds\n", DELAY_SECONDS);
-        motor.startMotor(50, RVR::MotorDirection::FORWARD);
+        motor.startMotor(50, MotorDirection::FORWARD);
         printCountdown(DELAY_SECONDS);
 
 
@@ -95,14 +92,13 @@ namespace RVR
         printCountdown(DELAY_SECONDS);
 
         printf("Running motor backwards for %d seconds\n", DELAY_SECONDS);
-        motor.startMotor(50, RVR::MotorDirection::REVERSE);
+        motor.startMotor(50, MotorDirection::REVERSE);
         printCountdown(DELAY_SECONDS);
 
         printf("Stopping motor\n");
         motor.stopMotor();
 
         return 0;
-
     }
 
     void testWifiSendCommand(const char* ipAddress)
@@ -277,7 +273,9 @@ int main(int argc, char *argv[])
 #endif
 
 #ifdef RUNTEST_TEST_DC_MOTOR
-    RVR::testDcMotor(RVR::MotorName::DRIVE_MOTOR_B);
+    RVR::PowerRail *motorRail = RVR::PowerManager::getRail(RVR::RAIL12V0);
+    const RVR::DRV8842Motor driveAMotor = RVR::DRV8842Motor(3, 86, 88, 89, 87, 10, 81, 32, 45, 61, 77, motorRail, 2500, 125);
+    RVR::testDcMotor(driveAMotor);
 #endif
 
 #ifdef RUNTEST_TEST_WIFI_SEND_COMMAND
