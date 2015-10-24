@@ -24,10 +24,9 @@ el::Logger *logger = el::Loggers::getLogger("default");
 //#define RUNTEST_TEST_WIFI_SEND_COMMAND
 //#define RUNTEST_TEST_WIFI_SEND_STATUS
 //#define RUNTEST_TEST_WIFI_SEND_TEXT
-#define RUNTEST_TEST_DC_MOTOR
-//#define RUNTEST_TEST_WIFI_SEND
+//#define RUNTEST_TEST_DC_MOTOR
 //#define RUNTEST_TEST_WIFI_RECEIVE_COMMAND
-//#define RUNTEST_TEST_WIFI_RECEIVE_STATUS
+#define RUNTEST_TEST_WIFI_RECEIVE_STATUS
 //#define RUNTEST_TEST_WIFI_RECEIVE_TEXT
 //#define RUNTEST_TEST_CAMERA_SAVE_FILE
 // ===========================================
@@ -167,17 +166,6 @@ namespace RVR
         *chunk = ourNetworkManager->getData("USBSocket");
 
         Command ourCommand(*chunk);
-
-        //print out type/data of ourCommand
-        if (ourCommand.getCommandType() == CommandType::DRIVE_LEFT)
-        {
-            VLOG(2) << "Command type was DRIVE_LEFT";
-        }
-
-        for (int i=0; i < COMMAND_LENGTH; i++)
-        {
-            VLOG(2) << (ourCommand.getCommandData())[i];
-        }
     }
 
     void testWifiReceiveStatus(const char* ipAddress)
@@ -189,17 +177,6 @@ namespace RVR
         *chunk = ourNetworkManager->getData("USBSocket");
 
         Status ourStatus(*chunk);
-
-        //print out type/data of ourStatus
-        if (ourStatus.getStatusType() == StatusType::CHARGING)
-        {
-            VLOG(2) << "Status type was CHARGING";
-        }
-
-        for (int i=0; i < STATUS_LENGTH; i++)
-        {
-            VLOG(2) << (ourStatus.getStatusData())[i];
-        }
     }
 
     void testWifiReceiveText(const char* ipAddress)
