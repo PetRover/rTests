@@ -20,13 +20,13 @@ el::Logger *logger = el::Loggers::getLogger("default");
 // TEST ENABLING FLAG SECTION
 // ===========================================
 //#define RUNTEST_TEST_GPIO
-//#define RUNTEST_TEST_DC_MOTOR
+#define RUNTEST_TEST_DC_MOTOR
 //#define RUNTEST_TEST_WIFI_SEND_COMMAND
 //#define RUNTEST_TEST_WIFI_SEND_STATUS
 //#define RUNTEST_TEST_WIFI_SEND_TEXT
 //#define RUNTEST_TEST_DC_MOTOR
 //#define RUNTEST_TEST_WIFI_RECEIVE_COMMAND
-#define RUNTEST_TEST_WIFI_RECEIVE_STATUS
+//#define RUNTEST_TEST_WIFI_RECEIVE_STATUS
 //#define RUNTEST_TEST_WIFI_RECEIVE_TEXT
 //#define RUNTEST_TEST_CAMERA_SAVE_FILE
 // ===========================================
@@ -103,7 +103,7 @@ namespace RVR
     void testWifiSendCommand(const char* ipAddress)
     {
         NetworkManager* ourNetworkManager = new NetworkManager;
-        ourNetworkManager->initializeNewConnection("USBSocket", ipAddress);
+        ourNetworkManager->initializeNewConnection("USBSocket", ipAddress, 1024);
 
         //make and fill command with data
         Command *ourCommand = new Command;
@@ -122,7 +122,7 @@ namespace RVR
     void testWifiSendStatus(const char* ipAddress)
     {
         NetworkManager* ourNetworkManager = new NetworkManager;
-        ourNetworkManager->initializeNewConnection("USBSocket", ipAddress);
+        ourNetworkManager->initializeNewConnection("USBSocket", ipAddress, 1024, 0);
 
         //make and fill status with data
         Status *ourStatus = new Status;
@@ -141,7 +141,7 @@ namespace RVR
     void testWifiSendText(const char* ipAddress)
     {
         NetworkManager* ourNetworkManager = new NetworkManager;
-        ourNetworkManager->initializeNewConnection("USBSocket", ipAddress);
+        ourNetworkManager->initializeNewConnection("USBSocket", ipAddress, 1024, 0);
 
         //make and fill text with data
         Text *ourTextMessage = new Text;
@@ -160,7 +160,7 @@ namespace RVR
     void testWifiReceiveCommand(const char* ipAddress)
     {
         NetworkManager* ourNetworkManager = new NetworkManager;
-        ourNetworkManager->initializeNewConnection("USBSocket", ipAddress);
+        ourNetworkManager->initializeNewConnection("USBSocket", ipAddress, 1024);
 
         NetworkChunk* chunk = new NetworkChunk;
         *chunk = ourNetworkManager->getData("USBSocket");
@@ -171,7 +171,7 @@ namespace RVR
     void testWifiReceiveStatus(const char* ipAddress)
     {
         NetworkManager* ourNetworkManager = new NetworkManager;
-        ourNetworkManager->initializeNewConnection("USBSocket", ipAddress);
+        ourNetworkManager->initializeNewConnection("USBSocket", ipAddress, 1024);
 
         NetworkChunk* chunk = new NetworkChunk;
         *chunk = ourNetworkManager->getData("USBSocket");
@@ -182,7 +182,7 @@ namespace RVR
     void testWifiReceiveText(const char* ipAddress)
     {
         NetworkManager* ourNetworkManager = new NetworkManager;
-        ourNetworkManager->initializeNewConnection("USBSocket", ipAddress);
+        ourNetworkManager->initializeNewConnection("USBSocket", ipAddress, 1024);
 
         NetworkChunk* chunk = new NetworkChunk;
         *chunk = ourNetworkManager->getData("USBSocket");
@@ -251,8 +251,8 @@ int main(int argc, char *argv[])
 
 #ifdef RUNTEST_TEST_DC_MOTOR
     RVR::PowerRail *motorRail = RVR::PowerManager::getRail(RVR::RAIL12V0);
-    const RVR::DRV8842Motor driveAMotor = RVR::DRV8842Motor(3, 86, 88, 89, 87, 10, 81, 32, 45, 61, 77, motorRail, 2500, 125);
-    RVR::testDcMotor(driveAMotor);
+    RVR::DRV8842Motor driveBMotor = RVR::DRV8842Motor(5, 46, 44, 26, 23, 47, 27, 69, 45, 61, 77, motorRail, 2500, 125);
+    RVR::testDcMotor(driveBMotor);
 #endif
 
 #ifdef RUNTEST_TEST_WIFI_SEND_COMMAND
