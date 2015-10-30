@@ -19,6 +19,7 @@ el::Logger *logger = el::Loggers::getLogger("default");
 // ===========================================
 // TEST ENABLING FLAG SECTION
 // ===========================================
+#define RUNTEST_TEST_PIN_REGISTRATION
 //#define RUNTEST_TEST_GPIO
 #define RUNTEST_TEST_DC_MOTOR
 //#define RUNTEST_TEST_WIFI_SEND_COMMAND
@@ -36,6 +37,19 @@ const char* serverIP = "192.168.1.12";
 
 namespace RVR
 {
+    int testPinRegistration()
+    {
+        VLOG(1) << "Registering GPIO 44";
+        GpioPin* Gpio44_1 = new GpioPin(44);
+        VLOG(1) << "DeRegistering GPIO 44";
+        delete(Gpio44_1);
+
+        VLOG(1) << "Registering GPIO 44 again";
+        GpioPin* Gpio44_1 = new GpioPin(44);
+        VLOG(1) << "DeRegistering GPIO 44";
+        return 0;
+    }
+
     int testGpio(int pinNumber)
     {
 
