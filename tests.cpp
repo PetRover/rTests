@@ -103,7 +103,7 @@ namespace RVR
     void testWifiSendCommand(const char* ipAddress)
     {
         NetworkManager* ourNetworkManager = new NetworkManager;
-        ourNetworkManager->initializeNewConnection("USBSocket", ipAddress, 1024);
+        ourNetworkManager->initializeNewConnection("USBSocket", ipAddress, 1024, ConnectionInitType::CONNECT);
 
         //make and fill command with data
         Command *ourCommand = new Command;
@@ -122,7 +122,7 @@ namespace RVR
     void testWifiSendStatus(const char* ipAddress)
     {
         NetworkManager* ourNetworkManager = new NetworkManager;
-        ourNetworkManager->initializeNewConnection("USBSocket", ipAddress, 1024, 0);
+        ourNetworkManager->initializeNewConnection("USBSocket", ipAddress, 1024, ConnectionInitType::CONNECT);
 
         //make and fill status with data
         Status *ourStatus = new Status;
@@ -141,7 +141,7 @@ namespace RVR
     void testWifiSendText(const char* ipAddress)
     {
         NetworkManager* ourNetworkManager = new NetworkManager;
-        ourNetworkManager->initializeNewConnection("USBSocket", ipAddress, 1024, 0);
+        ourNetworkManager->initializeNewConnection("USBSocket", ipAddress, 1024, ConnectionInitType::CONNECT);
 
         //make and fill text with data
         Text *ourTextMessage = new Text;
@@ -160,7 +160,7 @@ namespace RVR
     void testWifiReceiveCommand(const char* ipAddress)
     {
         NetworkManager* ourNetworkManager = new NetworkManager;
-        ourNetworkManager->initializeNewConnection("USBSocket", ipAddress, 1024);
+        ourNetworkManager->initializeNewConnection("USBSocket", ipAddress, 1024, ConnectionInitType::CONNECT);
 
         NetworkChunk* chunk = new NetworkChunk;
         *chunk = ourNetworkManager->getData("USBSocket");
@@ -171,7 +171,7 @@ namespace RVR
     void testWifiReceiveStatus(const char* ipAddress)
     {
         NetworkManager* ourNetworkManager = new NetworkManager;
-        ourNetworkManager->initializeNewConnection("USBSocket", ipAddress, 1024);
+        ourNetworkManager->initializeNewConnection("USBSocket", ipAddress, 1024, ConnectionInitType::CONNECT);
 
         NetworkChunk* chunk = new NetworkChunk;
         *chunk = ourNetworkManager->getData("USBSocket");
@@ -182,7 +182,7 @@ namespace RVR
     void testWifiReceiveText(const char* ipAddress)
     {
         NetworkManager* ourNetworkManager = new NetworkManager;
-        ourNetworkManager->initializeNewConnection("USBSocket", ipAddress, 1024);
+        ourNetworkManager->initializeNewConnection("USBSocket", ipAddress, 1024, ConnectionInitType::CONNECT);
 
         NetworkChunk* chunk = new NetworkChunk;
         *chunk = ourNetworkManager->getData("USBSocket");
