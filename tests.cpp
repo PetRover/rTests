@@ -79,12 +79,14 @@ namespace RVR
 
     int testDcMotor(DRV8842Motor motor)
     {
+        motor.wake();
         motor.setRampTime(2000);
+
+        motor.setCurrentLimit(motor.getMaxCurrent());
 
         printf("Running motor forward for %d seconds\n", DELAY_SECONDS);
         motor.startMotor(50, MotorDirection::FORWARD);
         printCountdown(DELAY_SECONDS);
-
 
         printf("Stopping motor for %d seconds\n", DELAY_SECONDS);
         motor.stopMotor();
@@ -97,6 +99,32 @@ namespace RVR
         printf("Stopping motor\n");
         motor.stopMotor();
 
+        VLOG(1) << "Sweeping motor current limit";
+        motor.setCurrentLimit(0);
+        int currentStep = motor.getMaxCurrent()/100;
+        for (int c=0;c<motor.getMaxCurrent();c+=currentStep)
+        {
+            motor.setCurrentLimit(c);
+            usleep(10000);
+        }
+        motor.setCurrentLimit(motor.getMaxCurrent());
+        usleep(10000);
+        VLOG(1) << "Done sweeping motor current limit";
+
+
+        motor.sleep();
+        usleep(1000000);
+        motor.wake();
+        usleep(1000000);
+        motor.reset();
+        usleep(1000000);
+        motor.setDecay(MotorDecayMode::FAST);
+        usleep(1000000);
+        motor.setDecay(MotorDecayMode::SLOW);
+        usleep(1000000);
+
+
+        VLOG(1) << "DC Motor test complete";
         return 0;
     }
 
@@ -251,8 +279,8 @@ int main(int argc, char *argv[])
 
 #ifdef RUNTEST_TEST_DC_MOTOR
     RVR::PowerRail *motorRail = RVR::PowerManager::getRail(RVR::RAIL12V0);
-    RVR::DRV8842Motor driveBMotor = RVR::DRV8842Motor(5, 46, 44, 26, 23, 47, 27, 69, 45, 61, 77, motorRail, 2500, 125);
-    RVR::testDcMotor(driveBMotor);
+    const RVR::DRV8842Motor treatMotor = RVR::DRV8842Motor(6, 76, 74, 75, 72, 73, 70, 78, 79, 8, 77, motorRail, 2500, 125, "TREAT");
+    RVR::testDcMotor(treatMotor);
 #endif
 
 #ifdef RUNTEST_TEST_WIFI_SEND_COMMAND
