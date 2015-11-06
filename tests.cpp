@@ -20,11 +20,11 @@ el::Logger *logger = el::Loggers::getLogger("default");
 // TEST ENABLING FLAG SECTION
 // ===========================================
 //#define RUNTEST_TEST_GPIO
-#define RUNTEST_TEST_DC_MOTOR
+//#define RUNTEST_TEST_DC_MOTOR
 //#define RUNTEST_TEST_WIFI_SEND_COMMAND
 //#define RUNTEST_TEST_WIFI_SEND_STATUS
 //#define RUNTEST_TEST_WIFI_SEND_TEXT
-//#define RUNTEST_TEST_DC_MOTOR
+#define RUNTEST_TEST_DC_MOTOR
 //#define RUNTEST_TEST_WIFI_RECEIVE_COMMAND
 //#define RUNTEST_TEST_WIFI_RECEIVE_STATUS
 //#define RUNTEST_TEST_WIFI_RECEIVE_TEXT
@@ -32,7 +32,7 @@ el::Logger *logger = el::Loggers::getLogger("default");
 // ===========================================
 
 int DELAY_SECONDS = 3;
-const char* serverIP = "192.168.1.12";
+const char* serverIP = "192.168.7.1";
 
 namespace RVR
 {
@@ -279,8 +279,8 @@ int main(int argc, char *argv[])
 
 #ifdef RUNTEST_TEST_DC_MOTOR
     RVR::PowerRail *motorRail = RVR::PowerManager::getRail(RVR::RAIL12V0);
-    const RVR::DRV8842Motor treatMotor = RVR::DRV8842Motor(6, 76, 74, 75, 72, 73, 70, 78, 79, 8, 77, motorRail, 2500, 125, "TREAT");
-    RVR::testDcMotor(treatMotor);
+    const RVR::DRV8842Motor driveAMotor = RVR::DRV8842Motor(0, 86, 88, 89, 87, 10, 81, 32, 45, 61, 77, motorRail, 2500, 125);
+    RVR::testDcMotor(driveAMotor);
 #endif
 
 #ifdef RUNTEST_TEST_WIFI_SEND_COMMAND
