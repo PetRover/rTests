@@ -22,17 +22,19 @@ el::Logger *logger = el::Loggers::getLogger("default");
 //#define RUNTEST_TEST_GPIO
 //#define RUNTEST_TEST_DC_MOTOR
 //#define RUNTEST_TEST_WIFI_SEND_COMMAND
+//#define RUNTEST_TEST_WIFI_SEND_COMMAND_NO_MESSAGE
 //#define RUNTEST_TEST_WIFI_SEND_STATUS
 //#define RUNTEST_TEST_WIFI_SEND_TEXT
-#define RUNTEST_TEST_DC_MOTOR
-//#define RUNTEST_TEST_WIFI_RECEIVE_COMMAND
+//#define RUNTEST_TEST_DC_MOTOR
+#define RUNTEST_TEST_WIFI_RECEIVE_COMMAND
 //#define RUNTEST_TEST_WIFI_RECEIVE_STATUS
 //#define RUNTEST_TEST_WIFI_RECEIVE_TEXT
 //#define RUNTEST_TEST_CAMERA_SAVE_FILE
 // ===========================================
 
 int DELAY_SECONDS = 3;
-const char* serverIP = "192.168.7.1";
+const char* ipAddressLocal = "192.168.7.2";
+const char* ipAddressRemote = "192.168.7.1";
 
 namespace RVR
 {
@@ -128,10 +130,10 @@ namespace RVR
         return 0;
     }
 
-    void testWifiSendCommand(const char* ipAddress)
+    void testWifiSendCommand(const char* ipAddressLocal, const char* ipAddressRemote)
     {
         NetworkManager* ourNetworkManager = new NetworkManager;
-        ourNetworkManager->initializeNewConnection("USBSocket", ipAddress, 1024, ConnectionInitType::CONNECT);
+        ourNetworkManager->initializeNewConnection("USBSocket", ipAddressLocal, ipAddressRemote, 1024, ConnectionInitType::CONNECT, ConnectionProtocol::TCP);
 
         //make and fill command with data
         Command *ourCommand = new Command;
@@ -147,10 +149,27 @@ namespace RVR
         ourNetworkManager->sendData("USBSocket", ourNetworkChunk);
     }
 
-    void testWifiSendStatus(const char* ipAddress)
+    void testWifiSendCommandNoMessage(const char* ipAddressLocal, const char* ipAddressRemote)
     {
         NetworkManager* ourNetworkManager = new NetworkManager;
-        ourNetworkManager->initializeNewConnection("USBSocket", ipAddress, 1024, ConnectionInitType::CONNECT);
+        ourNetworkManager->initializeNewConnection("USBSocket", ipAddressLocal, ipAddressRemote, 1024, ConnectionInitType::CONNECT, ConnectionProtocol::TCP);
+
+        //make and fill command with data
+        Command *ourCommand = new Command;
+        ourCommand->setCommandType(CommandType::DRIVE_BACKWARD);
+
+        //turn command into NetworkChunk
+        NetworkChunk* ourNetworkChunk = new NetworkChunk;
+        *ourNetworkChunk = ourCommand->toNetworkChunk();
+
+        //send NetworkChunk
+        ourNetworkManager->sendData("USBSocket", ourNetworkChunk);
+    }
+
+    void testWifiSendStatus(const char* ipAddressLocal, const char* ipAddressRemote)
+    {
+        NetworkManager* ourNetworkManager = new NetworkManager;
+        ourNetworkManager->initializeNewConnection("USBSocket", ipAddressLocal, ipAddressRemote, 1024, ConnectionInitType::CONNECT, ConnectionProtocol::TCP);
 
         //make and fill status with data
         Status *ourStatus = new Status;
@@ -166,10 +185,10 @@ namespace RVR
         ourNetworkManager->sendData("USBSocket", ourNetworkChunk);
     }
 
-    void testWifiSendText(const char* ipAddress)
+    void testWifiSendText(const char* ipAddressLocal, const char* ipAddressRemote)
     {
         NetworkManager* ourNetworkManager = new NetworkManager;
-        ourNetworkManager->initializeNewConnection("USBSocket", ipAddress, 1024, ConnectionInitType::CONNECT);
+        ourNetworkManager->initializeNewConnection("USBSocket", ipAddressLocal, ipAddressRemote, 1024, ConnectionInitType::CONNECT, ConnectionProtocol::TCP);
 
         //make and fill text with data
         Text *ourTextMessage = new Text;
@@ -185,35 +204,35 @@ namespace RVR
         ourNetworkManager->sendData("USBSocket", ourNetworkChunk);
     }
 
-    void testWifiReceiveCommand(const char* ipAddress)
+    void testWifiReceiveCommand(const char* ipAddressLocal, const char* ipAddressRemote)
     {
         NetworkManager* ourNetworkManager = new NetworkManager;
-        ourNetworkManager->initializeNewConnection("USBSocket", ipAddress, 1024, ConnectionInitType::CONNECT);
+        ourNetworkManager->initializeNewConnection("USBSocket", ipAddressLocal, ipAddressRemote, 1024, ConnectionInitType::CONNECT, ConnectionProtocol::TCP);
 
         NetworkChunk* chunk = new NetworkChunk;
-        *chunk = ourNetworkManager->getData("USBSocket");
+        ourNetworkManager->getData("USBSocket", chunk);
 
         Command ourCommand(*chunk);
     }
 
-    void testWifiReceiveStatus(const char* ipAddress)
+    void testWifiReceiveStatus(const char* ipAddressLocal, const char* ipAddressRemote)
     {
         NetworkManager* ourNetworkManager = new NetworkManager;
-        ourNetworkManager->initializeNewConnection("USBSocket", ipAddress, 1024, ConnectionInitType::CONNECT);
+        ourNetworkManager->initializeNewConnection("USBSocket", ipAddressLocal, ipAddressRemote, 1024, ConnectionInitType::CONNECT, ConnectionProtocol::TCP);
 
         NetworkChunk* chunk = new NetworkChunk;
-        *chunk = ourNetworkManager->getData("USBSocket");
+        ourNetworkManager->getData("USBSocket", chunk);
 
         Status ourStatus(*chunk);
     }
 
-    void testWifiReceiveText(const char* ipAddress)
+    void testWifiReceiveText(const char* ipAddressLocal, const char* ipAddressRemote)
     {
         NetworkManager* ourNetworkManager = new NetworkManager;
-        ourNetworkManager->initializeNewConnection("USBSocket", ipAddress, 1024, ConnectionInitType::CONNECT);
+        ourNetworkManager->initializeNewConnection("USBSocket", ipAddressLocal, ipAddressRemote, 1024, ConnectionInitType::CONNECT, ConnectionProtocol::TCP);
 
         NetworkChunk* chunk = new NetworkChunk;
-        *chunk = ourNetworkManager->getData("USBSocket");
+        ourNetworkManager->getData("USBSocket", chunk);
 
         Text ourTextMessage(*chunk);
 
@@ -284,27 +303,31 @@ int main(int argc, char *argv[])
 #endif
 
 #ifdef RUNTEST_TEST_WIFI_SEND_COMMAND
-    RVR::testWifiSendCommand(serverIP);
+    RVR::testWifiSendCommand(ipAddressLocal, ipAddressRemote);
+#endif
+
+#ifdef RUNTEST_TEST_WIFI_SEND_COMMAND_NO_MESSAGE
+    RVR::testWifiSendCommandNoMessage(ipAddressLocal, ipAddressRemote);
 #endif
 
 #ifdef RUNTEST_TEST_WIFI_SEND_STATUS
-    RVR::testWifiSendStatus(serverIP);
+    RVR::testWifiSendStatus(ipAddressLocal, ipAddressRemote);
 #endif
 
 #ifdef RUNTEST_TEST_WIFI_SEND_TEXT
-    RVR::testWifiSendText(serverIP);
+    RVR::testWifiSendText(ipAddressLocal, ipAddressRemote);
 #endif
 
 #ifdef RUNTEST_TEST_WIFI_RECEIVE_COMMAND
-    RVR::testWifiReceiveCommand(serverIP);
+    RVR::testWifiReceiveCommand(ipAddressLocal, ipAddressRemote);
 #endif
 
 #ifdef RUNTEST_TEST_WIFI_RECEIVE_STATUS
-    RVR::testWifiReceiveStatus(serverIP);
+    RVR::testWifiReceiveStatus(ipAddressLocal, ipAddressRemote);
 #endif
 
 #ifdef RUNTEST_TEST_WIFI_RECEIVE_TEXT
-    RVR::testWifiReceiveText(serverIP);
+    RVR::testWifiReceiveText(ipAddressLocal, ipAddressRemote);
 #endif
 
 #ifdef RUNTEST_TEST_CAMERA_SAVE_FILE
